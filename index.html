@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ֆրունզի ֆիլմերի վիկտորինա</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./quiz-data.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="header-brand">
+        <span class="brand-mark" aria-hidden="true">🎬</span>
+        <h1 id="quiz-title" class="app-title">Ֆրունզի ֆիլմերի վիկտորինա</h1>
+      </div>
+      <div id="header-meta" class="header-meta" hidden>
+        <span id="progress-badge" class="status-pill">Հարց 1 / 1</span>
+        <span id="score-badge" class="status-pill status-pill-accent">Միավոր՝ 0</span>
+      </div>
+    </header>
+
+    <main id="main-content" class="app-main">
+      <div id="live-announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+
+      <!-- Մեկնարկային էկրան -->
+      <section id="screen-start" class="screen card start-card" aria-labelledby="start-heading">
+        <div class="start-badge" id="start-count">0 հարց</div>
+        <h2 id="start-heading" class="start-heading" tabindex="-1">Պատրա՞ստ եք սկսել խաղը։</h2>
+        <p id="start-subtitle" class="start-subtitle">
+          Դիտեք ֆիլմի կարճ հատվածը և ընտրեք ճիշտ պատասխանը։
+        </p>
+
+        <ol class="steps-list">
+          <li>
+            <span class="step-num" aria-hidden="true">1</span>
+            <span>Դիտում ենք կարճ տեսահատվածը էկրանին</span>
+          </li>
+          <li>
+            <span class="step-num" aria-hidden="true">2</span>
+            <span>Տեսանյութից հետո հայտնվում են հարցը և 4 տարբերակները</span>
+          </li>
+          <li>
+            <span class="step-num" aria-hidden="true">3</span>
+            <span>Ընտրում ենք պատասխանը և միանգամից տեսնում ճիշտ տարբերակը</span>
+          </li>
+        </ol>
+
+        <div class="start-actions">
+          <button type="button" id="start-btn" class="btn btn-primary btn-large">
+            Սկսել վիկտորինան
+          </button>
+        </div>
+      </section>
+
+      <!-- Հարցի էկրան -->
+      <section id="screen-quiz" class="screen quiz-layout" aria-labelledby="quiz-stage-heading" hidden inert>
+        <h2 id="quiz-stage-heading" class="visually-hidden" tabindex="-1">Վիկտորինայի հարց</h2>
+
+        <progress id="quiz-progress" class="quiz-progress" value="0" max="1" aria-label="Վիկտորինայի ընթացքը"></progress>
+
+        <div class="video-stage card">
+          <div class="video-frame">
+            <video
+              id="quiz-video"
+              width="848"
+              height="480"
+              playsinline
+              preload="auto"
+              aria-label="Ընթացիկ հարցի տեսահատվածը"
+            ></video>
+
+            <div id="video-status-badge" class="video-badge">Բեռնում…</div>
+
+            <div id="autoplay-overlay" class="video-overlay" hidden>
+              <button type="button" id="overlay-play-btn" class="btn btn-primary btn-large">
+                ▶ Միացնել տեսանյութը ձայնով
+              </button>
+            </div>
+
+            <div id="video-error" class="video-overlay video-error" hidden>
+              <p id="video-error-text">Տեսանյութը դեռ չի բեռնվել։ Ստուգեք ֆայլի առկայությունը։</p>
+              <div class="video-error-actions">
+                <button type="button" id="retry-video-btn" class="btn btn-secondary">Կրկին փորձել</button>
+                <button type="button" id="error-show-answers-btn" class="btn btn-primary">Ցույց տալ պատասխանները</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="video-timeline" aria-hidden="true">
+            <div id="video-timeline-fill" class="video-timeline-fill"></div>
+          </div>
+
+          <div class="video-controls" role="toolbar" aria-label="Տեսանյութի կառավարում">
+            <div class="controls-group">
+              <button type="button" id="play-pause-btn" class="btn btn-secondary btn-compact">
+                Դադար
+              </button>
+              <button type="button" id="replay-btn" class="btn btn-secondary btn-compact">
+                Կրկնել
+              </button>
+              <button type="button" id="mute-btn" class="btn btn-secondary btn-compact">
+                Ձայնը՝ Միացված
+              </button>
+              <div class="volume-wrap">
+                <label for="volume-slider" class="visually-hidden">Տեսանյութի ձայնի բարձրությունը</label>
+                <input
+                  type="range"
+                  id="volume-slider"
+                  class="volume-slider"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value="1"
+                >
+              </div>
+              <span id="video-time" class="video-time" aria-hidden="true">0:00 / 0:00</span>
+            </div>
+
+            <button type="button" id="skip-wait-btn" class="btn btn-ghost btn-compact">
+              Ցույց տալ տարբերակները
+            </button>
+          </div>
+        </div>
+
+        <div id="watch-notice" class="watch-notice card">
+          <span class="watch-dot" aria-hidden="true"></span>
+          <span>Դիտում ենք տեսահատվածը… Պատասխանների տարբերակները կհայտնվեն ավարտից հետո։</span>
+        </div>
+
+        <div id="answers-panel" class="answers-panel" hidden>
+          <h3 id="question-text" class="question-title"></h3>
+
+          <div id="options-grid" class="options-grid" role="group" aria-labelledby="question-text"></div>
+
+          <div id="feedback-bar" class="feedback-bar" hidden>
+            <div id="feedback-box" class="feedback-box">
+              <div id="feedback-verdict" class="feedback-verdict"></div>
+              <p id="feedback-detail" class="feedback-detail"></p>
+            </div>
+            <button type="button" id="next-btn" class="btn btn-primary btn-next">
+              Հաջորդ հարցը →
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Արդյունքների էկրան -->
+      <section id="screen-results" class="screen card results-card" aria-labelledby="results-heading" hidden inert>
+        <h2 id="results-heading" class="results-heading" tabindex="-1">Վիկտորինան ավարտվեց։</h2>
+
+        <div class="results-score-box">
+          <div id="final-score-value" class="final-score-value">0 / 0</div>
+          <div id="final-score-percent" class="final-score-percent">0%</div>
+          <p id="final-verdict" class="final-verdict"></p>
+        </div>
+
+        <h3 class="summary-title">Պատասխանների ամփոփում</h3>
+        <ol id="results-summary" class="results-summary"></ol>
+
+        <div class="results-actions">
+          <button type="button" id="restart-btn" class="btn btn-primary btn-large">
+            Խաղալ կրկին
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>Ստեղներ՝ <kbd>1</kbd>–<kbd>4</kbd> պատասխանի ընտրություն · <kbd>Space</kbd> դադար · <kbd>R</kbd> կրկնել տեսանյութը</p>
+      <p class="credit-watermark" lang="en">Created By Samvel Chopikyan</p>
+    </footer>
+  </div>
+</body>
+</html>
